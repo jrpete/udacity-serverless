@@ -1,27 +1,24 @@
-import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import * as AWS from 'aws-sdk'
-import 'source-map-support/register'
-
-const docClient = new AWS.DynamoDB.DocumentClient()
-
-const todosTable = process.env.TODOS_TABLE
+import 'source-map-support/register';
+import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda';
+import { deleteTodo } from '../../helpers/Todos';
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    
-    const todoId = event.pathParameters.todoId
-
-    await docClient.delete({
-        TableName: todosTable,
-        Key: {
-          todoId: todoId
-        }
-    }).promise()
-
+  // delete todo and if it fails, return error
+  if (!(await deleteTodo(event))) {
     return {
-        statusCode: 201,
-        headers: {
-            'Access-Control-Allow-Origin': '*'
-        },
-        body:'Item removed'
-    }
+      statusCode: 404,
+      body: JSON.stringify({
+        error: 'Item does not exist'
+      })
+    };
+  }
+
+  return {
+    statusCode: 202,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true
+    },
+    body: JSON.stringify({})
+  };
 }

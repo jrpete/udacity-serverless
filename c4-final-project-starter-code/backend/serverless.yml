@@ -22,7 +22,7 @@ provider:
     TODOS_TABLE: Todos-2-${self:provider.stage}
     ATTACHMENTS_TABLE: Attachments-2-${self:provider.stage}
     ATTACHMENTS_S3_BUCKET: serverless-images-todo-2-${self:provider.stage}
-    AUTH_0_SECRET: arAVOvKvPdFz53WLH-pztFgtgorGPOjBZqfnaI0JnxaWFL8PHw7vaBEiVoTnrhDU
+    AUTH_0_SECRET: tivip_AQaecLjfLlXL0umo81IfQqKoV6xS-aStM80GaJJUNBZg5_2FACXPwUd5Y3
     USERID_INDEX: UserIdIndex
     # ATTACHMENT_ID_INDEX: AttachmentIdIndex
     SIGNED_URL_EXPIRATION: 300
@@ -50,11 +50,13 @@ provider:
         - dynamodb:PutItem
         - dynamodb:Query
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ATTACHMENTS_TABLE}
+
     - Effect: Allow
       Action:
         - s3:PutObject
         - s3:GetObject
       Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENTS_S3_BUCKET}/*
+
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -183,6 +185,7 @@ resources:
         ResponseParameters:
           gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
           gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          
           gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
         ResponseType: DEFAULT_4XX
         RestApiId:

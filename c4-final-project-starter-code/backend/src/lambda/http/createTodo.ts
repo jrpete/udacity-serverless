@@ -1,45 +1,30 @@
-import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import * as AWS from 'aws-sdk'
-import 'source-map-support/register'
-import * as uuid from 'uuid'
-import { parseUserId } from '../../auth/utils'
-
-const docClient = new AWS.DynamoDB.DocumentClient()
-
-const todosTable = process.env.TODOS_TABLE
+import 'source-map-support/register';
+import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
+import { CreateTodoRequest } from '../../requests/CreateTodoRequest';
+import { createTodo } from '../../helpers/Todos';
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    
-    console.log("EVENT:", event);
+  const newTodo: CreateTodoRequest = JSON.parse(event.body);
 
-    const todoId = uuid.v4()
-
-    const parsedBody = JSON.parse(event.body)
-
-    const authHeader = event.headers.Authorization
-    const authSplit = authHeader.split(" ")
-    const token = authSplit[1]
-
-    console.log("test",token)
-
-    const item = {
-      todoId: todoId,
-        userId: parseUserId(token),
-        ...parsedBody
-    }
-
-    await docClient.put({
-        TableName: todosTable,
-        Item: item
-    }).promise()
-
+  if (!newTodo.name) {
     return {
-        statusCode: 201,
-        headers: {
-            'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({
-          item
-        })
-    }
+      statusCode: 400,
+      body: JSON.stringify({
+        error: 'name is empty'
+      })
+    };
+  }
+
+  const todoItem = await createTodo(event, newTodo);
+
+  return {
+    statusCode: 201,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true
+    },
+    body: JSON.stringify({
+      item: todoItem
+    })
+  };
 }
