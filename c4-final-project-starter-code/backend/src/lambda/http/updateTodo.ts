@@ -1,27 +1,22 @@
-import 'source-map-support/register';
-import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { updateTodo }  from '../../helpers/Todos';
-import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest';
+import 'source-map-support/register'
+import {updateTodoItem} from '../../businessLogic/allTodos'
+
+import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
+
+import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const updatedTodo: UpdateTodoRequest = JSON.parse(event.body);
+  const todoId = event.pathParameters.todoId
+  const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
 
-  const updated = await updateTodo(event, updatedTodo);
-  if (!updated) {
-    return {
-      statusCode: 404,
-      body: JSON.stringify({
-        error: 'Item does not exist'
-      })
-    };
-  }
-
+  // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
+  const result = await updateTodoItem(todoId, updatedTodo);
   return {
-    statusCode: 200,
+    statusCode: 202,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true 
     },
-    body: JSON.stringify({})
-  }
+    body: JSON.stringify(result)
+}
 }

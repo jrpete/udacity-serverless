@@ -1,24 +1,19 @@
-import 'source-map-support/register';
-import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda';
-import { deleteTodo } from '../../helpers/Todos';
+import 'source-map-support/register'
+import {deleteTodoItem} from '../../businessLogic/allTodos'
+import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  // delete todo and if it fails, return error
-  if (!(await deleteTodo(event))) {
-    return {
-      statusCode: 404,
-      body: JSON.stringify({
-        error: 'Item does not exist'
-      })
-    };
-  }
+  const todoId = event.pathParameters.todoId
 
+  // TODO: Remove a TODO item by id
+  await deleteTodoItem(todoId)
+  
   return {
     statusCode: 202,
-    headers: {
+    headers:{
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true
+      'Access-Control-Allow-Credentials': true 
     },
-    body: JSON.stringify({})
-  };
+    body:''
+  }
 }
