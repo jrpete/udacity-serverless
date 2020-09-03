@@ -4,14 +4,15 @@ service:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
-
+  - serverless-reqvalidator-plugin
+  
 provider:
   tracing:
     lambda: true
     apiGateway: true
 
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs10.x
 
   stage: ${opt:stage, 'dev'}
   region: us-east-2
