@@ -11,7 +11,7 @@ AWS.config.update({region: process.env.region});
 export class TodoItemAccess{
 
     constructor (
-        // private readonly docClient: DocumentClient = createDynamoDBClient(),
+  
         private readonly docClient = new AWS.DynamoDB.DocumentClient({apiVersion: '2012-08-10'}),
         private readonly todoItemsTable = process.env.TODOS_TABLE){
 
@@ -117,19 +117,4 @@ export class TodoItemAccess{
 }
 
 
-
-
-// function createDynamoDBClient() {
-//     if (process.env.IS_OFFLINE) {
-//       console.log('Creating a local DynamoDB instance')
-//       return new  XAWS.DynamoDB.DocumentClient({
-//         region: 'us-east-1',
-//         endpoint: 'http://localhost:8000'
-//       })
-//     }
-    
-//     return new XAWS.DynamoDB.DocumentClient()
-
-//   }
-  
   export default new TodoItemAccess()

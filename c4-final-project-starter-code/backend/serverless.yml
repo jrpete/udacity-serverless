@@ -12,7 +12,7 @@ provider:
     apiGateway: true
 
   name: aws
-  runtime: nodejs10.x
+  runtime: nodejs12.x
 
   stage: ${opt:stage, 'dev'}
   region: us-east-2
@@ -23,13 +23,11 @@ provider:
     ATTACHMENTS_S3_BUCKET: serverless-images-todo-2-${self:provider.stage}
     AUTH_0_SECRET: tivip_AQaecLjfLlXL0umo81IfQqKoV6xS-aStM80GaJJUNBZg5_2FACXPwUd5Y3
     USERID_INDEX: UserIdIndex
-    # ATTACHMENT_ID_INDEX: AttachmentIdIndex
     SIGNED_URL_EXPIRATION: 300
 
   iamRoleStatements:
     - Effect: Allow
       Action:
-        # - dynamodb:Scan
         - dynamodb:Query
         - dynamodb:PutItem
         - dynamodb:GetItem
@@ -54,6 +52,7 @@ provider:
       Action:
         - s3:PutObject
         - s3:GetObject
+
       Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENTS_S3_BUCKET}/*
 
     - Effect: Allow
@@ -93,7 +92,6 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          # - dynamodb:Scan
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
       - Effect: Allow
@@ -145,6 +143,7 @@ functions:
         Action:
           - dynamodb:PutItem
           - dynamodb:GetItem
+          - dynamodb:UpdateItem
           
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
@@ -183,6 +182,8 @@ functions:
         Action:
           - s3:PutObject
           - s3:GetObject
+          - '*'
+
         Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENTS_TABLE}/*
       - Effect: Allow
         Action:
@@ -247,8 +248,6 @@ resources:
             AttributeType: S
           - AttributeName: timestamp
             AttributeType: S
-          # - AttributeName: attachmentId
-          #   AttributeType: S
         KeySchema:
           - AttributeName: todoId
             KeyType: HASH
@@ -286,6 +285,9 @@ resources:
             - Sid: PublicReadForGetBucketObjects
               Effect: Allow
               Principal: '*'
-              Action: 's3:GetObject'
+              Action: 
+                - 's3:GetObject'
+                - 's3:PutObject'
+
               Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENTS_S3_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket
